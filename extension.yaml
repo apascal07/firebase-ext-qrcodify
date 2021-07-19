@@ -1,0 +1,115 @@
+name: firebase-ext-qrcodify
+version: 0.1.0
+specVersion: v1beta
+
+displayName: QR Codify
+description:
+  Converts a Cloud Firestore collection field into a QR code image and stores its URL alongside the original.
+
+license: Apache-2.0
+
+sourceUrl: https://github.com/firebase/extensions/tree/master/firestore-shorten-urls-bitly
+releaseNotesUrl: https://github.com/firebase/extensions/blob/master/firestore-shorten-urls-bitly/CHANGELOG.md
+
+author:
+  authorName: Alex Pascal
+
+billingRequired: true
+
+roles:
+  - role: datastore.user
+    reason: Allows the extension to write QR code image URLs to Cloud Firestore
+  - role: storage.objectAdmin
+    reason: Allows the extension to write and replace QR code images to Firebase Storage
+
+resources:
+  - name: qrcodify
+    type: firebaseextensions.v1beta.function
+    description:
+      Listens for writes of new URLs to your specified Cloud Firestore collection, generates a QR code image,
+      uploads it to Firebase Storage, and stores the URL to the image in the collection.
+    properties:
+      location: ${param:LOCATION}
+      runtime: nodejs14
+      eventTrigger:
+        eventType: providers/cloud.firestore/eventTypes/document.write
+        resource: projects/${param:PROJECT_ID}/databases/(default)/documents/${param:COLLECTION_PATH}/{documentId}
+
+params:
+  - param: LOCATION
+    label: Cloud Functions location
+    description: >-
+      Where do you want to deploy the functions created for this extension?
+      For help selecting a location, refer to the [location selection
+      guide](https://firebase.google.com/docs/functions/locations).
+    type: select
+    options:
+      - label: asia-east2 (Hong Kong)
+        value: asia-east2
+      - label: asia-northeast1 (Tokyo)
+        value: asia-northeast1
+      - label: asia-northeast2 (Osaka)
+        value: asia-northeast2
+      - label: asia-northeast3 (Seoul)
+        value: asia-northeast3
+      - label: asia-south1 (Mumbai)
+        value: asia-south1
+      - label: asia-southeast2 (Jakarta)
+        value: asia-southeast2
+      - label: australia-southeast1 (Sydney)
+        value: australia-southeast1
+      - label: europe-central2 (Warsaw)
+        value: europe-central2
+      - label: europe-west1 (Belgium)
+        value: europe-west1
+      - label: europe-west2 (London)
+        value: europe-west2
+      - label: europe-west3 (Frankfurt)
+        value: europe-west3
+      - label: europe-west6 (Zurich)
+        value: europe-west6
+      - label: northamerica-northeast1 (Montreal)
+        value: northamerica-northeast1
+      - label: southamerica-east1 (Sao Paulo)
+        value: southamerica-east1
+      - label: us-central1 (Iowa)
+        value: us-central1
+      - label: us-east1 (South Carolina)
+        value: us-east1
+      - label: us-east4 (Northern Virginia)
+        value: us-east4
+      - label: us-west2 (Los Angeles)
+        value: us-west2
+      - label: us-west3 (Salt Lake City)
+        value: us-west3
+      - label: us-west4 (Las Vegas)
+        value: us-west4
+    default: us-central1
+    required: true
+    immutable: true
+
+  - param: COLLECTION_PATH
+    label: Collection path
+    description: >
+      What is the path to the collection that contains the URLs that you want to encode in QR codes?
+    example: urls
+    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
+    validationErrorMessage: Must be a valid Cloud Firestore collection
+    default: urls
+    required: true
+
+  - param: QR_CODE_SOURCE_FIELD
+    label: QR Code Source Field
+    description: >
+      What is the name of the field that contains the content to be encoded in the QR code?
+    example: url
+    default: url
+    required: true
+
+  - param: QR_CODE_URL_FIELD
+    label: QR Code URL Field
+    description: >
+      What is the name of the field where you want to store the URL to the QR code?
+    example: qr_code_url
+    default: qr_code_url
+    required: true
