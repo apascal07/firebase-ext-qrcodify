@@ -55,4 +55,4 @@ This extension will operate with the following project IAM roles:
 
 * datastore.user (Reason: Allows the extension to write QR code image URLs to Cloud Firestore)
 
-* storage.objectCreator (Reason: Allows the extension to write QR code images to Firebase Storage)
+* storage.objectAdmin (Reason: Allows the extension to write and replace QR code images to Firebase Storage)
